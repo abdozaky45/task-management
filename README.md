@@ -3,7 +3,7 @@
 ### Components
 1. **User**
 2. **Category**
-3. *Task**
+3. **Task**
 
 ## Installation
 
