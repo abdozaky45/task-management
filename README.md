@@ -13,9 +13,11 @@ https://github.com/abdozaky45/task-management
 1. Clone the repository or download the source code.
 2. Install the required dependencies by running the following command:
 
+
       ```sh
      npm install
       ```
+      
 3.Create a .env file in the root directory of the project and add the following environment variables:
 
       ```plaintext
@@ -28,7 +30,9 @@ https://github.com/abdozaky45/task-management
       REFRESH_TOKEN_SECRET=your_refresh_token_secret
       BEARER_TOKEN=your_bearer_token
       ```
+      
 4. Run the application by executing the following command:
+
     ```sh
     npm start
     ```
