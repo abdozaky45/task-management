@@ -16,8 +16,7 @@ https://github.com/abdozaky45/task-management
     ```sh
     npm install
     ```
-
-
+3.Create a .env file in the root directory of the project and add the following environment variables:
     ```plaintext
     DB_URL=your_database_url
     PORT=your_port_number
@@ -29,7 +28,6 @@ https://github.com/abdozaky45/task-management
     BEARER_TOKEN=your_bearer_token
     ```
 4. Run the application by executing the following command:
-
     ```sh
     npm start
     ```
