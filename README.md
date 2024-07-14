@@ -25,3 +25,9 @@
     REFRESH_TOKEN_SECRET=your_refresh_token_secret
     BEARER_TOKEN=your_bearer_token
     ```
+    4. Run the application by executing the following command:
+
+    ```sh
+    npm start
+    ```
+
