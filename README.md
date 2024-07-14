@@ -33,8 +33,3 @@ https://github.com/abdozaky45/task-management
     ```sh
     npm start
     ```
-    or
-    ```sh
-    npm run dev
-    ```
-
