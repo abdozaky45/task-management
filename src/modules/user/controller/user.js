@@ -25,9 +25,15 @@ export const register = asyncHandler(async (req, res, next) => {
   // data from request
   const { userName, email, password } = req.body;
   // check user existence
-  const isUser = await userModel.findOne({ userName });
-  if (isUser)
-    throw new ApiError(409, "user already register")
+  const isUser = await userModel.findOne({
+    $or: [
+      { userName },
+      { email }
+    ]
+  });
+  if (isUser) {
+    throw new ApiError(409, "User already registered with this username or email");
+  }
   //generate activationcode
   const activationCode = crypto.randomBytes(64).toString("hex");
   const uniqueNumber = Randomstring.generate({
