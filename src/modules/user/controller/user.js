@@ -96,6 +96,7 @@ export const login = asyncHandler(async (req, res) => {
   const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(user._id); //get tokens
   // save token model refreshToken
   user.refreshToken = refreshToken;
+  user.accessToken = accessToken;
   user.agent = req.headers["user-agent"];
   await user.save();
   const loggedInUser = await userModel.findById(user._id).select("-password -refreshToken")
@@ -116,7 +117,7 @@ export const logout = asyncHandler(async (req, res) => {
   const user = await userModel.findById(
     req.params._id,
     {
-      $unset: { refreshToken: 1 } // this removes the field from document
+      $unset: { refreshToken: 1, accessToken: 1 }  // this removes the field from document
     }
   );
   user.status = "offline";
@@ -136,6 +137,8 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
   if (authorization !== user?.refreshToken)
     throw new ApiError(401, "Refresh token is expired or used");
   const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(user._id);
+  user.accessToken = accessToken;
+  await user.save();
   return res
     .status(200)
     .json(

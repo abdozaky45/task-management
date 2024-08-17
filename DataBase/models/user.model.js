@@ -17,7 +17,7 @@ const userSchema = new Schema({
   userName: {
     type: String,
     required: true,
-    unique:true,
+    unique: true,
     min: 3,
     max: 22
   },
@@ -45,8 +45,9 @@ const userSchema = new Schema({
     type: Boolean,
     default: false
   },
-  refreshToken: { type: String},
-  agent: String, 
+  accessToken: { type: String },
+  refreshToken: { type: String },
+  agent: String,
   forgetCode: String,
   activationCode: String
 });
@@ -66,16 +67,16 @@ userSchema.methods.generateAccessToken = function () {
     role: this.role
   },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn:"1d"}
+    { expiresIn: "1d" }
   )
 }
-userSchema.methods.generateRefreshToken = function(){
+userSchema.methods.generateRefreshToken = function () {
   return jwt.sign(
     {
-      _id:this._id
+      _id: this._id
     },
     process.env.REFRESH_TOKEN_SECRET,
-    {expiresIn:"365d"}
+    { expiresIn: "365d" }
   )
 }
 const userModel = model("User", userSchema);

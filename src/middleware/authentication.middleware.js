@@ -11,9 +11,9 @@ export const auth = asyncHandler(async (req, res, next) => {
   const decoded = verifyToken({ token })
   if (!decoded?._id)
     throw new ApiError(400, 'in-valid token payload');
-  // const tokenDB = await userModel.findOne({ refreshToken: token });
-  // if (!tokenDB)
-  //   throw new ApiError(401, 'token expired')
+  const tokenDB = await userModel.findOne({ accessToken: token });
+  if (!tokenDB)
+    throw new ApiError(401, 'token expired')
   console.log(decoded);
   const user = await userModel.findById(decoded._id);
   if (!user)
