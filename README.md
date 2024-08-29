@@ -29,6 +29,7 @@ https://github.com/abdozaky45/task-management
       ACCESS_TOKEN_SECRET=your_access_token_secret
       REFRESH_TOKEN_SECRET=your_refresh_token_secret
       BEARER_TOKEN=your_bearer_token
+      CLIENT_ID=your_client_id_google_soical_login
       ```
       
 4. Run the application by executing the following command:
