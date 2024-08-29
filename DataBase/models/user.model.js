@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from "mongoose";
+import { Schema, model } from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 const userSchema = new Schema({
@@ -44,6 +44,11 @@ const userSchema = new Schema({
   isConfirmed: {
     type: Boolean,
     default: false
+  },
+  provider: {
+    type: String,
+    default: "SYSTEM",
+    enum: ["SYSTEM", "GOOGLE", "FACEBOOK", "ICLOUD"]
   },
   accessToken: { type: String },
   refreshToken: { type: String },

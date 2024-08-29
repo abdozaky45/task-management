@@ -10,6 +10,7 @@ import { ApiResponse } from "../../../utils/ApiResponse.js";
 import slugify from "slugify";
 import { compare, hash } from "../../../utils/HashAndCompare.js";
 import { OAuth2Client } from 'google-auth-library';
+import { customAlphabet } from 'nanoid'
 // ? Referesh Token Access Token
 const generateAccessAndRefereshTokens = async (userId) => {
   try {
@@ -53,8 +54,7 @@ export const register = asyncHandler(async (req, res, next) => {
     activationCode
   });
   // create link confirmEmail
-  const link = `${req.protocol}://${req.headers
-    .host}/auth/confirmEmail/${activationCode}`;
+  const link = `${req.protocol}://${req.headers.host}/auth/confirmEmail/${activationCode}`;
   // send Email
   const isSend = await sendEmail({
     to: email,
@@ -79,7 +79,7 @@ export const activationAccount = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, {}, "Done activate account , try to login now"));
 });
 // ? login
-export const login = asyncHandler(async (req, res) => {
+export const login = asyncHandler(async (req, res, next) => {
   //Data
   const { userName, password } = req.body;
   // exist
@@ -99,11 +99,11 @@ export const login = asyncHandler(async (req, res) => {
   user.refreshToken = refreshToken;
   user.accessToken = accessToken;
   user.agent = req.headers["user-agent"];
-  await user.save();
-  const loggedInUser = await userModel.findById(user._id).select("-password -refreshToken")
   // change status
   user.status = "online";
   await user.save();
+  const loggedInUser = await userModel.findById(user._id).select("-password -refreshToken")
+
   // send res
   return res
     .status(200)
@@ -122,15 +122,55 @@ export const signupOrloginWithGamil = asyncHandler(async (req, res) => {
       idToken,
       audience: process.env.CLIENT_ID,
       // audience: [process.env.CLIENT_ID_1, process.env.CLIENT_ID_2, process.env.CLIENT_ID_3],
-      // Specify the CLIENT_ID of the app that accesses the backend
-      // Or, if multiple clients access the backend:
-      //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
     });
     const payload = ticket.getPayload();
     return payload;
   }
-  const payload = await verify();
-  return res.status(201).json(new ApiResponse(201, { payload }, "Done"));
+  const { email, email_verified, name, given_name, family_name, picture } = await verify();
+  if (!email_verified) {
+    throw new ApiError(400, "In-valid email");
+  }
+  const user = await userModel.findOne({ email: email.toLowerCase() });
+  if (user) {
+    // login 
+    if (user.provider != 'GOOGLE')
+      throw new ApiError(404, "In-valid provider");
+    const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(user._id); //get tokens
+    user.accessToken = accessToken;
+    user.refreshToken = refreshToken;
+    user.agent = req.headers['user-agent'];
+    user.status = "online";
+    await user.save();
+    const userLoggend = await userModel.findById(user._id).select("-refreshToken -password");
+    return res
+      .status(201)
+      .json(
+        new ApiResponse(201, { user: userLoggend }, "User logged In Successfully")
+      );
+  }
+  // register
+  const customPassword = customAlphabet(process.env.ALPHABET, process.env.PASSWORD_LENGTH);
+  const userRegister = await userModel.create({
+    userName: name,
+    email,
+    password: customPassword,
+    provider: "GOOGLE",
+    url: picture,
+    isConfirmed: "true"
+  });
+  const { accessToken, refreshToken } = generateAccessAndRefereshTokens(userRegister._id);
+  userRegister.accessToken = accessToken;
+  userRegister.refreshToken = refreshToken;
+  userRegister.agent = req.headers['user-agent'];
+  userRegister.status = "online";
+  await user.save();
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200,
+        { accessToken, refreshToken },
+        "User logged In Successfully"
+      ));
 });
 // ? logout
 export const logout = asyncHandler(async (req, res) => {
