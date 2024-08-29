@@ -19,6 +19,8 @@ router.get(
 );
 //login
 router.post("/login", validation(validate.loginSchema), userController.login);
+// soical login 
+router.post("/signupOrloginWithGamil",userController.signupOrloginWithGamil);
 //logout
 router.post("/logout/_:id",auth,autherized("user"),validation(validate.logout),userController.logout);
 // Access token refreshed

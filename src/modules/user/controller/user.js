@@ -9,6 +9,7 @@ import { ApiError } from "../../../utils/ApiError.js";
 import { ApiResponse } from "../../../utils/ApiResponse.js";
 import slugify from "slugify";
 import { compare, hash } from "../../../utils/HashAndCompare.js";
+import { OAuth2Client } from 'google-auth-library';
 // ? Referesh Token Access Token
 const generateAccessAndRefereshTokens = async (userId) => {
   try {
@@ -111,6 +112,25 @@ export const login = asyncHandler(async (req, res) => {
         { user: loggedInUser, accessToken, refreshToken },
         "User logged In Successfully"
       ));
+});
+// ? signupOrloginWithGamil
+export const signupOrloginWithGamil = asyncHandler(async (req, res) => {
+  const { idToken } = req.body;
+  const client = new OAuth2Client(process.env.CLIENT_ID);
+  async function verify() {
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: process.env.CLIENT_ID,
+      // audience: [process.env.CLIENT_ID_1, process.env.CLIENT_ID_2, process.env.CLIENT_ID_3],
+      // Specify the CLIENT_ID of the app that accesses the backend
+      // Or, if multiple clients access the backend:
+      //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
+    });
+    const payload = ticket.getPayload();
+    return payload;
+  }
+  const payload = await verify();
+  return res.status(201).json(new ApiResponse(201, { payload }, "Done"));
 });
 // ? logout
 export const logout = asyncHandler(async (req, res) => {
